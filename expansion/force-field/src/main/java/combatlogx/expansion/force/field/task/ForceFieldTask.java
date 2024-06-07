@@ -8,7 +8,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.github.sirblobman.api.folia.details.EntityTaskDetails;
 import com.github.sirblobman.api.folia.details.LocationTaskDetails;
+import com.github.sirblobman.combatlogx.api.event.PlayerTagEvent;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import org.bukkit.Bukkit;
@@ -83,6 +86,19 @@ public final class ForceFieldTask extends ExpansionListener implements Runnable 
     public void onUntag(PlayerUntagEvent e) {
         Player player = e.getPlayer();
         removeForceField(player);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTag(PlayerTagEvent e) {
+      Player player = e.getPlayer();
+      getCombatLogX().getFoliaHelper().getScheduler().scheduleLocationTask(new LocationTaskDetails(getJavaPlugin(), player.getLocation()) {
+        @Override
+        public void run() {
+          if (isNearRedConcrete(player)) {
+            pushPlayerAwayFromSpawn(player);
+          }
+        }
+      });
     }
 
     public void registerProtocol() {
@@ -236,6 +252,20 @@ public final class ForceFieldTask extends ExpansionListener implements Runnable 
         }
 
         return false;
+    }
+
+    private boolean isNearRedConcrete(Player player) {
+      final Block center = player.getLocation().getBlock();
+      for (int x = -3; x <= 3; x++) {
+        for (int y = -3; y <= 3; y++) {
+          for (int z = -3; z <= 3; z++) {
+            final Block block = center.getRelative(x, y, z);
+            if (block.getType() == Material.RED_CONCRETE) return true;
+          }
+        }
+      }
+
+      return false;
     }
 
     private void updateForceField(@NotNull Player player) {
@@ -400,4 +430,15 @@ public final class ForceFieldTask extends ExpansionListener implements Runnable 
             }
         }
     }
+
+  public void pushPlayerAwayFromSpawn(Player player) {
+    getCombatLogX().getFoliaHelper().getScheduler().scheduleEntityTask(new EntityTaskDetails<Player>(getJavaPlugin(), player) {
+      @Override
+      public void run() {
+        final Vector spawn = new Vector(0, 60, 0);
+        final Vector velocity = player.getLocation().toVector().subtract(spawn).normalize().multiply(0.7);
+        player.setVelocity(velocity);
+      }
+    });
+  }
 }

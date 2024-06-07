@@ -1,27 +1,5 @@
 package combatlogx.expansion.force.field.task;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import com.github.sirblobman.api.folia.details.LocationTaskDetails;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import com.github.sirblobman.api.location.BlockLocation;
-import com.github.sirblobman.api.utility.VersionUtility;
-import com.github.sirblobman.combatlogx.api.ICombatLogX;
-import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
-import com.github.sirblobman.combatlogx.api.object.TagInformation;
-import com.github.sirblobman.api.shaded.xseries.XMaterial;
-
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.PacketType.Play.Client;
 import com.comphenix.protocol.PacketType.Play.Server;
@@ -35,8 +13,27 @@ import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType;
 import com.comphenix.protocol.wrappers.MovingObjectPositionBlock;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+import com.github.sirblobman.api.folia.details.LocationTaskDetails;
+import com.github.sirblobman.api.location.BlockLocation;
+import com.github.sirblobman.api.shaded.xseries.XMaterial;
+import com.github.sirblobman.api.utility.VersionUtility;
+import com.github.sirblobman.combatlogx.api.ICombatLogX;
+import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
+import com.github.sirblobman.combatlogx.api.object.TagInformation;
 import combatlogx.expansion.force.field.ForceFieldExpansion;
 import combatlogx.expansion.force.field.configuration.ForceFieldConfiguration;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author olivolja3
@@ -234,6 +231,8 @@ public final class ForceFieldAdapter extends PacketAdapter {
         if (packetType == Client.USE_ITEM) {
             task.sendForceField(player, location);
         }
+
+        task.pushPlayerAwayFromSpawn(player);
     }
 
     private void sendForceFieldBlockDig(@NotNull ForceFieldTask task, @NotNull Player player,
